@@ -71,7 +71,6 @@ async def changeprefix(ctx, prefix):
 
     await ctx.send(f'Prefix Changed to {prefix}')
 
-
 @client.command()
 @commands.has_permissions(administrator = True)
 async def guild(ctx):
@@ -116,7 +115,6 @@ async def guildtracking(ctx, *,track):
             json.dump(loadguild,f)
 
         await ctx.send(f'Found ! Now Tracking Guild : {tempguild}')
-
 
 @client.command()
 @commands.has_permissions(administrator = True)
@@ -259,7 +257,6 @@ async def visitorrole(ctx, *,track):
 
     await ctx.send(f'Role For Visitor Now Set To : {track}')
 
-
 @client.command()
 @commands.has_permissions(administrator = True)
 async def alliances(ctx):
@@ -282,82 +279,113 @@ async def alliancesrole(ctx, *,track):
     await ctx.send(f'Role For Alliance Now Set To : {track}')
 
 @client.command()
-async def register(ctx, username, nickname):
+async def register(ctx, *params):
+    if len(params) != 2:
+        await ctx.send(f'Input Salah, silahkan input sesuai contoh!\n\nformat: `-register [IGN] [Nickname]`\ncontoh: `-register Kuronekosannn Sandy`')
+    else:
+        username = params[0]
+        nickname = params[1]
+        with open("servers.json", "r") as f:
+            loadalias = json.load(f)
 
-    with open("servers.json", "r") as f:
-        loadalias = json.load(f)
+        alias = loadalias[str(ctx.guild.id)]["guildalias"]
 
-    alias = loadalias[str(ctx.guild.id)]["guildalias"]
+        with open("servers.json", "r") as f:
+            loadguild = json.load(f)
 
-    with open("servers.json", "r") as f:
-        loadguild = json.load(f)
+        guildjs = loadguild[str(ctx.guild.id)]["guild"]
 
-    guildjs = loadguild[str(ctx.guild.id)]["guild"]
+        with open("servers.json", "r") as f:
+            loadalliance = json.load(f)
 
-    with open("servers.json", "r") as f:
-        loadalliance = json.load(f)
+        allianceid = loadalliance[str(ctx.guild.id)]["allianceid"]
 
-    allianceid = loadalliance[str(ctx.guild.id)]["allianceid"]
+        with open("servers.json", "r") as f:
+            loadmember = json.load(f)
 
-    with open("servers.json", "r") as f:
-        loadmember = json.load(f)
+        member = loadmember[str(ctx.guild.id)]["memberrole"]
 
-    member = loadmember[str(ctx.guild.id)]["memberrole"]
+        with open("servers.json", "r") as f:
+            loadvisitor = json.load(f)
 
-    with open("servers.json", "r") as f:
-        loadvisitor = json.load(f)
+        visitor = loadvisitor[str(ctx.guild.id)]["visitorrole"]
 
-    visitor = loadvisitor[str(ctx.guild.id)]["visitorrole"]
+        with open("servers.json", "r") as f:
+            loadalliances = json.load(f)
 
-    with open("servers.json", "r") as f:
-        loadalliances = json.load(f)
+        alliances = loadalliances[str(ctx.guild.id)]["alliancerole"]
 
-    alliances = loadalliances[str(ctx.guild.id)]["alliancerole"]
+        message = username
+        await ctx.channel.trigger_typing()
+        await ctx.send(f'Searching Player {message}\nthis may take a min, please have patience.')
+        fullURL = (f"https://gameinfo.albiononline.com/api/gameinfo/search?q={message}")
+        print('Searching For Player',message)
+        data = urllib.request.urlopen(fullURL).read().decode()
+        await ctx.channel.trigger_typing()
+        output = json.loads(data)
+        try:
+            player = output["players"][0]
+        except IndexError:
+            player = 'null' 
+        await ctx.channel.trigger_typing()
 
-    message = username
-    await ctx.channel.trigger_typing()
-    await ctx.send(f'Searching Player {message}')
-    fullURL = (f"https://gameinfo.albiononline.com/api/gameinfo/search?q={message}")
-    print('Searching For Player',message)
-    data = urllib.request.urlopen(fullURL).read().decode()
-    await ctx.channel.trigger_typing()
-    output = json.loads(data)
-    try:
-        player = output["players"][0]
-    except IndexError:
-        player = 'null' 
-    if player == 'null' :
-        await ctx.send(f'Not Found Any Player With {username} !')
-        print(f'Not Found Any Player With {username} !')
-        return
-    else :
-        ign = player["Name"]
-        guild = player["GuildName"]
-        
-        if guild == "":
-            tguild = "-"
-        elif guild == guildjs :
-            if alias == "-":
-                tguild = guildjs
-                role = discord.utils.get(ctx.guild.roles, name=member)
+        if player == 'null':
+                await ctx.send(f'Not Found Any Player With {username} !')
+                print(f'Not Found Any Player With {username} !')
+                return
+        else:
+            ign = player["Name"]
+            guild = player["GuildName"]
+            
+            if guild == "":
+                tguild = "-"
+                role = discord.utils.get(ctx.guild.roles, name=visitor)
+            elif guild == guildjs :
+                if alias == "-":
+                    tguild = guildjs
+                    role = discord.utils.get(ctx.guild.roles, id=802067852714311690)
+                else :
+                    tguild = alias
+                    role = discord.utils.get(ctx.guild.roles, id=802067852714311690)
+            elif allianceid == player["AllianceId"]:
+                    tguild = guild
+                    role = discord.utils.get(ctx.guild.roles, name=alliances)
             else :
-                tguild = alias
-                role = discord.utils.get(ctx.guild.roles, name=member)
-        elif allianceid == player["AllianceId"]:
                 tguild = guild
-                role = discord.utils.get(ctx.guild.roles, name=alliances)
-        else :
-            tguild = guild
-            role = discord.utils.get(ctx.guild.roles, name=visitor)
-    sguild = tguild[0:4]
-    rename = (f"[{sguild}] {ign} ({nickname})")
-    role1 = discord.utils.get(ctx.guild.roles, name=member)
-    role2 = discord.utils.get(ctx.guild.roles, name=visitor)
-    role3 = discord.utils.get(ctx.guild.roles, name=alliances)
-    await ctx.author.edit(nick=rename)
-    await ctx.author.remove_roles(role1 ,role2, role3)
-    await ctx.author.add_roles(role)
-    await ctx.send(f'Registration Success\nYour Nickname Is `{ign}` And You Are In Guild `[{guild}]`\nYour Nickname Changed to {ctx.message.author.mention}\nAnd You Get `{role}` Role')
+                role = discord.utils.get(ctx.guild.roles, name=visitor)
+            howmuch_tguild = len(tguild)
+            if howmuch_tguild >= 5:
+                sguild = tguild[0:4]
+            else:
+                sguild = tguild
+            
+            rename = (f"[{sguild}] {ign} ({nickname})")
+            role1 = discord.utils.get(ctx.guild.roles, id=802067852714311690)
+            role2 = discord.utils.get(ctx.guild.roles, name=visitor)
+            role3 = discord.utils.get(ctx.guild.roles, name=alliances)
+            if role1 in ctx.author.roles and role2 in ctx.author.roles and role3 in ctx.author.roles:
+                await ctx.author.remove_roles(role1)
+                await ctx.author.remove_roles(role2)
+                await ctx.author.remove_roles(role3)
+            elif role1 in ctx.author.roles and role2 in ctx.author.roles:
+                await ctx.author.remove_roles(role1)
+                await ctx.author.remove_roles(role2)
+            elif role1 in ctx.author.roles:
+                await ctx.author.remove_roles(role1)
+            elif role2 in ctx.author.roles:
+                await ctx.author.remove_roles(role2)
+            elif role3 in ctx.author.roles:
+                await ctx.author.remove_roles(role3)
+            else:
+                print(f"{ctx.author.name} has no role for removing")
+
+            try:
+                await ctx.author.edit(nick=rename)
+                await ctx.author.add_roles(role)
+                await ctx.reply(f'Registration Success\nYour Nickname Is `{ign}` And You Are In Guild `[{guild}]`\nYour Nickname Changed to {ctx.message.author.mention}\nAnd You Get `{role}` Role')
+            except:
+                helpers = discord.utils.get(ctx.guild.roles, name='Helpers')
+                await ctx.reply(f"Something Error Happening :(\n\nplease check the role, make sure to clean up before register or re-register.\ncontact {helpers} if you need assistance.")
 
 @client.command()
 @commands.has_permissions(administrator = True)

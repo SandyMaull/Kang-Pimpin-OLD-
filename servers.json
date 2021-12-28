@@ -8,17 +8,5 @@
     "guildalias" : "ABC",
     "memberrole" : "Anggota",
     "visitorrole" : "Pengunjung",
-    "alliancerole" : "Alliance"},
-
-"808721765144461312":
-    {
-    "servername" : "Endernations",
-    "prefix" :"-",
-    "guild" : "Endernations",
-    "allianceid" : "BS0qUu2xS-2JF0uVZ_aWlQ",
-    "alliancename" : "Warga Lokal",
-    "guildalias" : "EN",
-    "memberrole" : "Anggota",
-    "visitorrole" : "Visitor",
-    "alliancerole" : "Alliance Member"}
+    "alliancerole" : "Alliance"}
 }
