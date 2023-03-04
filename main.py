@@ -393,4 +393,4 @@ async def help(ctx):
     text = "```**Help Menu**\n    Default Prefix -\n    changeprefix <value>        *Use to change prefix ex: - = $ % ...Etc*\n    guild                       *Check guild in tracking*\n    alliance                    *Check alliance in tracking*\n    alias                       *Check alias for tracked Guild*\n    guildtracking <value>       *Change Tracked Guild*\n    alliancetracking <value>    *Change Tracked Alliance*\n    changealias <value>         *Change Alias For Tracked Guild*\n    member                      *Check member role*\n    visitor                     *Check visitor role*\n    alliances                   *Check alliance role*\n    memberrole <value>          *Change Member role role*\n    visitorrole <value>         *Change Visitor role role*\n    alliancesrole <value>       *Change Member role role*\n    register <IGN> <nickname>   *Registering player to get Role*```"
     await ctx.send(text)
 
-client.run('ODAyMTUwODkxNTk0OTczMjE0.YArDOw.80Cbdc67jOCpH3RopMHanvpw22w')
+client.run('TOKEN')
